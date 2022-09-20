@@ -13,13 +13,18 @@ class CreateComptesTable extends Migration
      */
     public function up()
     {
+
+        Schema::disableForeignKeyConstraints();
+
         Schema::create('comptes', function (Blueprint $table) {
             $table->id();
-            $table->integer('id_user');
-            $table->string('montant');
+            $table->foreignId('user_id')->constrained();
+            $table->integer('montant');
             $table->boolean('has_momo');
             $table->timestamps();
         });
+
+        Schema::enableForeignKeyConstraints();
     }
 
     /**

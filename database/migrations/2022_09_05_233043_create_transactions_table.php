@@ -13,14 +13,19 @@ class CreateTransactionsTable extends Migration
      */
     public function up()
     {
+
+        Schema::disableForeignKeyConstraints();
+
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->integer('id_sender');
-            $table->integer('id_recever');
+            $table->foreignId('id_sender')->constrained('users');
+            $table->foreignId('id_recever')->constrained('users');
             $table->integer('montant');
 
             $table->timestamps();
         });
+
+        Schema::enableForeignKeyConstraints();
     }
 
     /**

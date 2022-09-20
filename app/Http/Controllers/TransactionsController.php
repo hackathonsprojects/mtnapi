@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\TransactionsResource;
 use App\Models\Transactions;
+use App\Models\Compte;
 use Illuminate\Http\Request;
+use App\Http\Requests\TransactionStoreRequest;
 
 class TransactionsController extends Controller
 {
@@ -36,10 +38,42 @@ class TransactionsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(TransactionStoreRequest $request)
     {
-        $transactions = Transactions::create($request->validated());
-        return new TransactionsResource($transactions);
+        $compteDebit = Compte::where('user_id','=', $request->id_sender)->first();
+        $compteCredit = Compte::where('user_id','=', $request->id_recever)->first();
+
+
+
+        if ($compteDebit->montant < $request->montant) {
+            return response()->json([
+                'status' => false,
+                'message' => "Transaction impossiblte solde débiteur insuffisant"
+            ], 500);
+        }
+        else{
+
+            try {
+
+                $transactions = Transactions::create([
+                    'id_sender' => $request->id_sender,
+                    'id_recever' => $request->id_recever,
+                    'montant' => $request->montant
+                ]);
+                $compteDebit->update(['montant' =>$compteDebit->montant - $request->montant]);
+                $compteCredit->update(['montant' => $compteCredit->montant + $request->montant]);
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Transaction éffectuée avec succès',
+                ],200);
+            } catch (\Throwable $th){
+                return response()->json([
+                    'status' => false,
+                    'message' => $th->getMessage()
+                ], 500);
+            }
+        }
+
     }
 
     /**

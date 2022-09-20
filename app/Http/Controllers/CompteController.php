@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\CompteResource;
 use App\Models\Compte;
 use Illuminate\Http\Request;
+use App\Http\Requests\CompteStoreRequest;
 
 class CompteController extends Controller
 {
@@ -36,10 +37,24 @@ class CompteController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(CompteStoreRequest $request)
     {
-        $compte = Compte::create($request->validated());
-        return new CompteResource($compte);
+        try {
+            $compte = Compte::create([
+                'user_id' => $request->user_id,
+                'montant' => $request->montant,
+                'has_momo' => $request->has_momo,
+            ]);
+            return response()->json([
+                'status' => true,
+                'message' => 'Compte créé avec succès',
+            ],200);
+        } catch (\Throwable $th){
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 
     /**
