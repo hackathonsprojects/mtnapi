@@ -19,7 +19,7 @@ class AuthController extends Controller
         try {
             $validateUser = Validator::make($request->all(),
                 [
-                    'email' => 'required|email',
+                    'numero' => 'required|integer',
                     'password' => 'required'
                 ]
             );
@@ -30,14 +30,14 @@ class AuthController extends Controller
                     'erreurs' => $validateUser->errors()
                 ], 401);
             }
-            if (!Auth::attempt($request->only(['email', 'password']))){
+            if (!Auth::attempt($request->only(['numero', 'password']))){
                 return response()->json([
                     'status' => false,
-                    'message' => "L'Email & le mot de passe ne correspondent pas.",
+                    'message' => "Le numero & le mot de passe ne correspondent pas.",
                 ], 401);
             }
 
-            $user = User::where('email', $request->email)->first();
+            $user = User::where('numero', $request->numero)->first();
             return response()->json([
                 'status' => true,
                 'message' => 'Utilisateur authentifié',
