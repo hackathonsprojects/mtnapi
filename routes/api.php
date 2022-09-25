@@ -51,6 +51,7 @@ Route::controller(CompteController::class)
         Route::delete('/{compte}','destroy')->name('destroy');
     });
 
+Route::post('/auth/login', [AuthController::class,'login']);
 
 Route::controller(TransactionsController::class)
     ->prefix('transactions')
@@ -63,6 +64,5 @@ Route::controller(TransactionsController::class)
         Route::delete('/{transaction}','destroy')->name('destroy');
     });
 
-    Route::post('/auth/login', [AuthController::class,'login']);
 
 

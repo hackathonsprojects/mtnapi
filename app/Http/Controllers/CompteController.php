@@ -21,6 +21,44 @@ class CompteController extends Controller
         else return CompteResource::collection($comptes);
     }
 
+
+    public function login(AuthLoginRequest $request)
+    {
+
+        try {
+            $validateUser = Validator::make($request->all(),
+                [
+                    'numero' => 'required|integer',
+                    'password' => 'required'
+                ]
+            );
+            if ($validateUser->fails()){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Erreurs de validation',
+                    'erreurs' => $validateUser->errors()
+                ], 401);
+            }
+            if (!Auth::attempt($request->only(['numero']))){
+                return response()->json([
+                    'status' => false,
+                    'message' => "Le numero & le mot de passe ne correspondent pas.",
+                ], 401);
+            }
+
+            $user = User::where('numero', $request->numero)->first();
+            return response()->json([
+                'status' => true,
+                'message' => 'Utilisateur authentifié',
+                'token' => $user->createToken("API TOKEN")->plainTextToken
+            ], 200);
+        }catch (\Throwable $th){
+            return response()->json([
+                'status' => false,
+                'message' => $th->getMessage()
+            ], 500);
+        }
+    }
     /**
      * Show the form for creating a new resource.
      *

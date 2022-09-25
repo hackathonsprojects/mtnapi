@@ -14,13 +14,14 @@ class AuthController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login(AuthLoginRequest $request)
+    public function login(Request $request)
     {
+
         try {
             $validateUser = Validator::make($request->all(),
                 [
-                    'numero' => 'required|integer',
-                    'password' => 'required'
+                    'numero' => 'required',
+                    // 'password' => 'required'
                 ]
             );
             if ($validateUser->fails()){
@@ -30,19 +31,30 @@ class AuthController extends Controller
                     'erreurs' => $validateUser->errors()
                 ], 401);
             }
-            if (!Auth::attempt($request->only(['numero', 'password']))){
-                return response()->json([
-                    'status' => false,
-                    'message' => "Le numero & le mot de passe ne correspondent pas.",
-                ], 401);
-            }
+            // dd($request->only(['numero','password']));
+
+            // if (!Auth::attempt($request->only(['numero','password']))){
+            //     return response()->json([
+            //         'status' => false,
+            //         'message' => "Le numero  ne correspond à aucun compte.",
+            //     ], 401);
+            // }
 
             $user = User::where('numero', $request->numero)->first();
+            if($user){
             return response()->json([
                 'status' => true,
                 'message' => 'Utilisateur authentifié',
+                'user' => $user,
                 'token' => $user->createToken("API TOKEN")->plainTextToken
             ], 200);
+        }
+        else{
+            return response()->json([
+                        'status' => false,
+                        'message' => "Le numero  ne correspond à aucun compte.",
+                    ], 401);
+        }
         }catch (\Throwable $th){
             return response()->json([
                 'status' => false,
