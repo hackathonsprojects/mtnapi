@@ -63,7 +63,6 @@ class TransactionsController extends Controller
                 $amount=$request->montant;
                 //$momoTransactionId = $collection->requestToPay('4e74c8b4-a7a5-4c7a-8b7a-59a118673c58', '22505643', 100);
                 //print($momoTransactionId);
-
                 //$col = $collection->getTransactionStatus($momoTransactionId);
                 //dd($col);
                 // $cmpt = $collection->getAccountBalance();
