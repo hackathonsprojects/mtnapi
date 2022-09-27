@@ -40,20 +40,39 @@ class TransactionsController extends Controller
      */
     public function store(TransactionStoreRequest $request)
     {
-        $compteDebit = Compte::where('user_id','=', $request->id_sender)->first();
+        $user_recever = User::where("numero",$request->numero)->first();
+        $compteDebit = Compte::where('user_id','=', $user_recever->id)->first();
         $compteCredit = Compte::where('user_id','=', $request->id_recever)->first();
 
 
 
-        if ($compteDebit->montant < $request->montant) {
-            return response()->json([
-                'status' => false,
-                'message' => "Transaction impossiblte solde débiteur insuffisant"
-            ], 500);
-        }
-        else{
+        // if ($compteDebit->montant < $request->montant) {
+        //     return response()->json([
+        //         'status' => false,
+        //         'message' => "Transaction impossiblte solde débiteur insuffisant"
+        //     ], 500);
+        // }
+        // else{
 
             try {
+
+                $collection = new Collection();
+                $disbursement = new Disbursement();
+                //$momoTransactionId ="36d12644-0231-4aa1-8bf5-aa8217e63bdb";
+                $partyId = $request->numero;//"2250547896321"; "46733123453"
+                $amount=$request->montant;
+                //$momoTransactionId = $collection->requestToPay('4e74c8b4-a7a5-4c7a-8b7a-59a118673c58', '22505643', 100);
+                //print($momoTransactionId);
+
+                //$col = $collection->getTransactionStatus($momoTransactionId);
+                //dd($col);
+                // $cmpt = $collection->getAccountBalance();
+                // dd($cmpt);
+                //$info = $collection->getAccountHolderBasicInfo($partyId);
+                //$activ = $collection->isActive($partyId);
+
+                $tranid=$disbursement->transfer("transactionId", $partyId, $amount);
+                $st=$disbursement->getTransactionStatus($tranid);
 
                 $transactions = Transactions::create([
                     'id_sender' => $request->id_sender,
@@ -72,7 +91,13 @@ class TransactionsController extends Controller
                     'message' => $th->getMessage()
                 ], 500);
             }
+        catch(CollectionRequestException $e) {
+            do {
+                printf("\n\r%s:%d %s (%d) [%s]\n\r",
+                    $e->getFile(), $e->getLine(), $e->getMessage(), $e->getCode(), get_class($e));
+            } while($e = $e->getPrevious());
         }
+        // }
 
     }
 
